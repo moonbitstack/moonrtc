@@ -1,59 +1,42 @@
-# CHANGE-ME
+# moonrtc
 
-One sentence saying what this is.
+WebRTC is not one protocol but a stack of them. This is that stack, with no
+socket in it.
 
-```moonbit
-@lib.greet("moonbit")
-```
+> **Status: planned.** The repository is set up; nothing is
+> implemented yet.
 
-Run `moon run examples/tour` for the whole surface in one go.
+Each layer is a package, each package takes bytes and hands back events, and
+whoever calls them owns the UDP socket and the event loop. Both sides of every
+layer are in scope — this answers a call as readily as it places one.
 
-## Starting from this template
+| Package | Layer | Specification |
+|:--|:--|:--|
+| `sdp` | Session descriptions, the text both ends exchange to agree on media | [RFC 8866](https://www.rfc-editor.org/rfc/rfc8866) |
+| `stun` | Binding requests: what address the far side actually sees | [RFC 8489](https://www.rfc-editor.org/rfc/rfc8489) |
+| `turn` | Relaying, for when neither side can be reached directly | [RFC 8656](https://www.rfc-editor.org/rfc/rfc8656) |
+| `ice` | Candidate gathering, pairing and the connectivity check state machine | [RFC 8445](https://www.rfc-editor.org/rfc/rfc8445) |
+| `rtp` | Media packets and their sequencing | [RFC 3550](https://www.rfc-editor.org/rfc/rfc3550) |
+| `rtcp` | The reports that drive retransmission and rate control | [RFC 3550](https://www.rfc-editor.org/rfc/rfc3550) |
+| `srtp` | Encrypting those packets, with the ciphers taken from `mooncrypt` | [RFC 3711](https://www.rfc-editor.org/rfc/rfc3711) |
+| `sctp` | The data channel: an association carried over DTLS | [RFC 8831](https://www.rfc-editor.org/rfc/rfc8831), [RFC 4960](https://www.rfc-editor.org/rfc/rfc4960) |
 
-1. `gh repo create moonbitstack/<name> --template moonbitstack/moonkit --public`
-2. Replace `CHANGE-ME` everywhere: `moon.mod` (name and repository), the two
-   `moon.pkg` files that import `lib`, and this file's title.
-3. Delete `bin/` if the repository ships no binary; delete `lib/` if it ships
-   only a binary. Most repositories here keep `lib/` and rename it to whatever
-   the package actually is — `base64/`, `sha2/`, `jwt/` — because a package is
-   named after what it does, not after its role.
-4. Fill in `keywords` and `description` in `moon.mod`. The description is what
-   mooncakes shows, so it says what the package is and what it is not.
-5. Write the specification link into every `moon.pkg`.
+## What is deliberately elsewhere
 
-## What is here and what is not
+| Thing | Where it lives | Why |
+|:--|:--|:--|
+| DTLS handshake | [`moontls`](https://github.com/moonbitstack/moontls) | DTLS is TLS over datagrams; a second implementation would be a second thing to get wrong |
+| Ciphers and key derivation | [`mooncrypt`](https://github.com/moonbitstack/mooncrypt) | One algorithm to a package, used by everything here |
+| Opening the socket, running the loop | the server or the application | Every package here is I/O-free, which is what makes it testable |
+| Playlists, containers, ingest | [`moonmedia`](https://github.com/moonbitstack/moonmedia) | Segmented delivery is a different problem from a peer connection |
+| Audio and video codecs | nowhere — out of scope | This library carries media; it does not encode it |
 
-| Carried | Why |
-|:--|:--|
-| `.github/workflows/` | GitHub does not inherit workflows; every repository needs its own copy |
-| `moon.mod`, `lib/`, `bin/`, `examples/tour/` | The module layout, with the library and the binary separated the way cargo separates them |
-| `.gitignore`, `.moonignore` | The second one exists because `.gitignore`'s `!.git*` would otherwise pull the whole object database into a published tarball |
-| `LICENSE` | Apache-2.0, the same across the organisation |
-
-**Issue and pull-request templates are not here.** The organisation's `.github`
-repository supplies them to every repository that has none of its own; a copy
-here would shadow that one and then drift from it. A repository adds its own
-only when it needs something the organisation's does not cover.
-
-## The gate
-
-Every commit passes this, with each exit code seen to be zero:
+## Install
 
 ```bash
-moon clean && moon fmt && moon check --target all --deny-warn \
-  && moon build --target all && moon test --target all
+moon add moonbitstack/moonrtc
 ```
-
-Before a release, `moon info --target all && git diff --exit-code` as well: the
-generated interface is checked in, and a difference means the interface moved
-without anyone saying so.
-
-## Releasing
-
-Push a signed tag `v<version>`. `release.yml` runs the tests first and publishes
-only if they pass and the organisation variable `MOONCAKES_PUBLISH` is `true`.
-The major version stays at 0.
 
 ## Licence
 
-Apache-2.0.
+Apache-2.0. See [LICENSE](LICENSE).

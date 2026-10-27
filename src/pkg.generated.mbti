@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "moonbitstack/moonrtc/lib"
+package "moonbitstack/moonrtc"
 
 // Values
 pub fn greet(StringView) -> String

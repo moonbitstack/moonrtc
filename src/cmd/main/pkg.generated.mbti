@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "moonbitstack/moonrtc/bin"
+package "moonbitstack/moonrtc/cmd/main"
 
 // Values
 

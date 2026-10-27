@@ -10,6 +10,6 @@ license = "Apache-2.0"
 
 keywords = [ "webrtc", "rtp", "ice", "sdp", "srtp", "moonbit" ]
 
-description = "moonrtc — the WebRTC protocol stack for MoonBit: SDP, STUN, TURN, ICE, RTP, RTCP, SRTP and SCTP, written as state machines that take bytes and hand back events."
+description = "The WebRTC protocol stack for MoonBit."
 
 source = "src"
